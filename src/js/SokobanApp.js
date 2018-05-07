@@ -4,10 +4,7 @@ import store from "./store/";
 import World from "./World";
 
 const UltimateSokobanHeader = () => (
-  <header className="ultimate-sokoban-header">
-      <span className="ultimate">Ultimate</span>
-      <span className="sokoban">Sokoban v.1</span>
-  </header>
+  <header className="ultimate-sokoban-header">Ultimate Sokoban v.1</header>
 );
 
 class SokobanApp extends React.PureComponent {

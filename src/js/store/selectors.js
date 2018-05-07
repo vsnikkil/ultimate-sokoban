@@ -22,3 +22,14 @@ export const mapDataSelector = createSelector(
     return mapData.toJS()
   }
 );
+
+export const previousMoveSelector = createSelector(
+  state => state.get("previousMove"),
+  previousMove => {
+    if (!(previousMove instanceof Immutable.Map)) {
+      return undefined;
+    }
+
+    return previousMove.toJS();
+  }
+);

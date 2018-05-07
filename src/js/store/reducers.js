@@ -5,7 +5,6 @@ import {
 } from "./actions";
 
 function player(state = Immutable.Map({ x: 0, y: 0 }), { type, payload } = {}) {
-  console.log(arguments[1]);
   switch (type) {
     case MOVE_PLAYER:
       return state.withMutations(s => {
@@ -47,7 +46,10 @@ function sokobanReducer(
       });
     }
     case MOVE_PLAYER:
-      return state.update("player", p => player(p, arguments[1]));
+      return state.withMutations(s => {
+        s.set("previousMove", Immutable.fromJS(payload));
+        s.update("player", p => player(p, arguments[1]));
+      })
   }
   
   return state;

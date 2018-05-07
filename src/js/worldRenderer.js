@@ -9,6 +9,28 @@ const RAMIREZ = 2;
 const BLOCK_SIZE = 100;
 const ENTITIES = {};
 
+const RAMIREZ_RIGHT = 0;
+const RAMIREZ_LEFT = 1;
+const RAMIREZ_DOWN = 2;
+const RAMIREZ_UP = 3;
+function resolveOrientation(previousMove) {
+  if (typeof previousMove !== "object") {
+    return RAMIREZ_UP;
+  }
+
+  if (previousMove.x > 0) {
+    return RAMIREZ_RIGHT;
+  }
+  if (previousMove.y > 0) {
+    return RAMIREZ_DOWN;
+  }
+  if (previousMove.x < 0) {
+    return RAMIREZ_LEFT;
+  }
+
+  return RAMIREZ_UP;
+}
+
 let preloadDone = false;
 export function preloadEntities(...params) {
   if (preloadDone) {
@@ -47,11 +69,11 @@ function checkForResize(ctx) {
 }
 
 let t0, t1;
-function render(ctx, worldData) {
+function render(ctx, worldData, player, previousMove) {
   t0 = performance.now();
   checkForResize(ctx);
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  
+
   for (let i = 0; i < worldData.length; i++) {
     const currentRow = worldData[i];
     
@@ -66,6 +88,25 @@ function render(ctx, worldData) {
         BLOCK_SIZE / 2
       ]
       ctx.drawImage(...floorParams);
+
+      if (player.y === i && player.x === j) {
+        const orientation = resolveOrientation(previousMove);
+        const ramirez = ENTITIES[RAMIREZ];
+        const ramirezHeight = ramirez.height/(ramirez.width/4) * BLOCK_SIZE;
+        const ramirezWidth = BLOCK_SIZE;
+        const ramirezParams = [
+          ENTITIES[RAMIREZ],
+          orientation * ramirez.width/4,
+          0,
+          ramirez.width/4,
+          ramirez.height,
+          (j+(worldData.length - i))/2*BLOCK_SIZE - ramirezWidth/2,
+          (i+j)/4*BLOCK_SIZE - ramirezHeight + 2*BLOCK_SIZE,
+          ramirezWidth,
+          ramirezHeight
+        ]
+        ctx.drawImage(...ramirezParams);
+      }
       
       switch (currentTile) {
         case 'x':
@@ -76,22 +117,6 @@ function render(ctx, worldData) {
             BLOCK_SIZE,
             BLOCK_SIZE
           );
-          break;
-        case 'r':
-          const ramirez = ENTITIES[RAMIREZ];
-          const ramirezHeight = ramirez.height/(ramirez.width/4) * BLOCK_SIZE;
-          const ramirezWidth = BLOCK_SIZE;
-          const ramirezParams = [
-            ENTITIES[RAMIREZ],
-            0, 0,
-            ramirez.width/4,
-            ramirez.height,
-            (j+(worldData.length - i))/2*BLOCK_SIZE - ramirezWidth/2,
-            (i+j)/4*BLOCK_SIZE - ramirezHeight + 2*BLOCK_SIZE,
-            ramirezWidth,
-            ramirezHeight
-          ]
-          ctx.drawImage(...ramirezParams);
           break;
       }
     }

@@ -3,7 +3,11 @@ import React from "react";
 import exampleMap from "./maps/example-1";
 import worldRenderer, { preloadEntities } from "./worldRenderer";
 import { connect } from "react-redux";
-import { mapDataSelector, playerSelector } from "./store/selectors";
+import {
+  mapDataSelector,
+  playerSelector,
+  previousMoveSelector
+} from "./store/selectors";
 import { setMap, movePlayer } from "./store/actionCreators";
 
 const connectWorld = connect(
@@ -11,6 +15,7 @@ const connectWorld = connect(
     return {
       mapData: mapDataSelector(state),
       player: playerSelector(state),
+      previousMove: previousMoveSelector(state),
     };
   },
   function (dispatch) {
@@ -44,7 +49,9 @@ class World extends React.PureComponent {
   animationFunction() {
     worldRenderer(
       this.worldCtx,
-      mergePlayerToMap(this.props.mapData, this.props.player)
+      this.props.mapData,
+      this.props.player,
+      this.props.previousMove
     );
 
     this.animationRequest = requestAnimationFrame(this.animationFunction);
@@ -64,8 +71,11 @@ class World extends React.PureComponent {
     });
   }
 
-  componentDidUpdate() {
-    if (this.state.gameState === G.GAME_RUNNING) {
+  componentDidUpdate(prevProps, prevState = {}) {
+    if (
+      prevState.gameState !== this.state.gameState &&
+      this.state.gameState === G.GAME_RUNNING
+    ) {
       this.animationFunction();
     }
   }
@@ -74,12 +84,15 @@ class World extends React.PureComponent {
     switch (key) {
       case "ArrowLeft":
         this.props.movePlayer({ x: -1, y: 0 });
+        break;
       case "ArrowRight":
         this.props.movePlayer({ x: 1, y: 0 });
+        break;
       case "ArrowUp":
-        this.props.movePlayer({ x: 0, y: 1 });
-      case "ArrowDown":
         this.props.movePlayer({ x: 0, y: -1 });
+        break;
+      case "ArrowDown":
+        this.props.movePlayer({ x: 0, y: 1 });
     }
   }
 
